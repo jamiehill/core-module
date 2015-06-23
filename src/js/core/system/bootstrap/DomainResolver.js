@@ -1,4 +1,4 @@
-import * as regEx from '../utils/RegEx';
+import * as regEx from '../../utils/RegEx';
 import DeferredBase from '../defer/Deferred';
 
 export default class DomainResolver extends DeferredBase {

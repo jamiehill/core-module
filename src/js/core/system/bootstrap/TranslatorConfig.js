@@ -1,5 +1,5 @@
 import DeferredBase from '../defer/Deferred';
-import Translator from '../translation/Translator';
+import Translator from '../../i18n/Translator';
 
 export default class TranslatorConfig extends DeferredBase {
 	constructor(name) {

@@ -1,5 +1,5 @@
 import DeferredBase from '../defer/Deferred';
-import {getRegionalSports} from '../service/ApiService';
+import {getRegionalSports} from '../../service/ApiService';
 
 export default class GetRegionalSports extends DeferredBase {
 	constructor() {
