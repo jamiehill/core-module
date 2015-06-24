@@ -57,3 +57,53 @@ This is picked up by the module loader, in order to correctly bootstrap and rend
 **4. Change repository endpoint**
 
 The `repository` url, `homepage` field, and `bugs` url, in `package.json`, should be updated to reflect the new repository housing the module.
+
+
+Using
+-----
+
+To use a module in a shell/parent application, it simply needs to be declared as a git submodule.  The module repo will then be linked as a nested repo, inside of the parent application.
+
+**1. Add module to parent application***
+
+First we need to add the repo of the module we require, as a submodule in our application, specifying in which directory the submodule should be added.  For consistency sake, the directory the submodule is added to, should be in a the root `modules` folder
+
+`modules/my-module`
+
+for example:
+
+`git submodule add https://github.com/jamiehill/core-module.git modules/core-module`
+
+**2. Pulling submodule source, when cloning the parent**
+
+When a contributor clones the parent application, the submodule directories are not populated by default.  To pull down their source, you should:
+
+`git submodule init` then `git submodule update`
+
+**3. Mapping the included module in the parent application**
+
+Once imported into the parent application, the module's root content folder - as defined above in `Setup #2` - needs adding to the systemjs configuration, so that the dependecies the module includes, can be used in the application.
+
+Inside `config.js` under the `"paths"` object, map the name we want the dependency paths starting with, to the actual location in the parent application, ie:
+
+```
+System.config({
+  "baseURL": "./js"
+  },
+  "paths": {
+    "*": "*.js",
+    "github:*": "../../vendor/github/*.js",
+    "npm:*": "../../vendor/npm/*.js",
+    "base*":"../../../modules/my-module/src/js/base*",
+  }
+});
+```
+
+If we now wanted to import, say, `src/js/base/BaseView.js` into the parent application, we can simply say:
+
+`import BaseView from 'base/BaseView'`
+
+**Voila!**
+
+
+
