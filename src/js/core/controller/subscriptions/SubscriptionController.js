@@ -1,5 +1,6 @@
 import Topic from './Topic';
 import Marionette from 'backbone.marionette';
+import {PUBLIC_LOGIN_SUCCESS} from '../../service/SocketService';
 
 export default Marionette.Controller.extend({
 
@@ -20,12 +21,9 @@ export default Marionette.Controller.extend({
 	initialize: function(){
 		_.bindAll(this, 'add', 'remove', 'send', 'resend', 'clear', 'reset', 'func', 'sendUpdate');
 
-		this.service = ctx.get('streamingService');
-		this.vent = ctx.get('vent');
-
-		this.listenTo(this.vent, 'streaming:publicLoginComplete', this.resend);
-		this.listenTo(this.vent, 'subscriptions:clearall', this.clear);
-		this.listenTo(this.vent, 'router:before:routeChange', this.reset);
+		App.socket.on(PUBLIC_LOGIN_SUCCESS, this.resend);
+		App.vent.on('subscriptions:clearall', this.clear);
+		App.vent.on('router:before:routeChange', this.reset);
 
 		this.topics.EventSummary.check(this.topics.EventDetails);
 	},

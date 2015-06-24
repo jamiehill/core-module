@@ -1,64 +1,25 @@
-import SocketService from 'SocketService'
+import SocketService, {PUBLIC_LOGIN_SUCCESS} from './SocketService'
 import {LOGGED_IN, LOGGED_OUT} from '../model/SessionModel';
 
-export default EVENT_TRADING_STATE = "streaming:eventTradingState";
-export default INCIDENTS = "streaming:incidents";
-export default EVENT = "streaming:event";
-export default DATA_SYNC = "streaming:eventDataSync";
-export default SUBSCRIBE_RESPONSE = "streaming:subscribeResponse";
-export default SCHEDULE_AMENDMENT = "streaming:scheduleAmendment";
-export default ACCOUNT_BALANCE_UPDATE = "streaming:accountBalanceUpdate";
-export default BET_UPDATE = "streaming:betUpdate";
-export default CALCULATE_CASHOUT = "streaming:calculateCashout";
+export const EVENT_TRADING_STATE = "streaming:eventTradingState";
+export const INCIDENTS = "streaming:incidents";
+export const EVENT = "streaming:event";
+export const DATA_SYNC = "streaming:eventDataSync";
+export const SUBSCRIBE_RESPONSE = "streaming:subscribeResponse";
+export const SCHEDULE_AMENDMENT = "streaming:scheduleAmendment";
+export const ACCOUNT_BALANCE_UPDATE = "streaming:accountBalanceUpdate";
+export const BET_UPDATE = "streaming:betUpdate";
+export const CALCULATE_CASHOUT = "streaming:calculateCashout";
 
 export default SocketService.extend({
-	initialize() {
-		SocketService.prototype.initialize.apply(this, arguments);
-		this.session = ctx.get('sessionModel');
-		this.listenTo(this.session, LOGGED_IN, this.onLoggedIn);
-		this.listenTo(this.session, LOGGED_OUT, this.onLoggedOut);
-		this.start();
-	},
-
-
-	onOpen() {
-
-
-	},
-
-	onLoggedOut() {
-
-	},
 
 	/**
-	 * @param obj
+	 * Upgrade the public login,
 	 */
-	publicLogin() {
-		console.log('Streaming :: PublicLogin');
-		this.send({
-			PublicLoginRequest = {
-				application: App.Config.appid,
-				locale: App.Config.defaultChannel,
-				channel: App.Config.channel,
-				apiVersion: App.Config.apiVersion,
-				reqId: PUBLIC_LOGIN_REQ_ID
-			}
-		});
+	upgrade() {
+		this.send(this.UpgradePublicLogin());
 	},
 
-	/**
-	 * @param obj
-	 */
-	upgradeLogin() {
-		this.send({
-			UpgradePublicLoginRequest = {
-				userName: this.session.getName(),
-				accountId: this.session.getAccountId(),
-				apiSessionToken: this.session.getSessionToken(),
-				reqId: USER_LOGIN_REQ_ID
-			}
-		});
-	},
 
 	/**
 	 * @param data

@@ -1,5 +1,5 @@
 import ServiceBase from './ServiceBase';
-import sessionModel from '../domain/model/SessionModel';
+import sessionModel from '../model/SessionModel';
 
 
 var Service = ServiceBase.extend({

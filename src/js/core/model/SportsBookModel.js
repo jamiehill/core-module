@@ -1,14 +1,11 @@
 
-export default Backbone.Model.extend({
+var Model = Backbone.Model.extend({
 
 	defaults: {
 		"sports": []
-	},
-
-
-	fetchSports() {
-		var useSecure = App.Config.useSecure || false,
-			endpoint  = App.Urls[useSecure ? 'sendpoint' : 'endpoint'];
-		this.url = endpoint+'/getRegionalSports';
 	}
+
 });
+
+let inst = new Model();
+export default inst;
