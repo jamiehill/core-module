@@ -1,16 +1,16 @@
 import DeferredBase from '../defer/Deferred';
 import service from '../../service/ApiService';
-import model from '../../model/SportsBookModel';
+import model from '../../model/SportDataModel';
 
 export default class GetRegionalSports extends DeferredBase {
 	constructor() {
-		super('GetRegionalSports');
+		super('GetSportData');
 	}
 
 	initialize() {
 		var that = this;
-		service.getRegionalSports().then(function(resp) {
-			model.set({sports: resp.SportTypes.sports});
+		service.getSportData().then(function(resp) {
+			model.set({sports: resp});
 			that.success();
 		});
 	}

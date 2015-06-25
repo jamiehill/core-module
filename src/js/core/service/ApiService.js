@@ -653,6 +653,17 @@ var Service = ServiceBase.extend({
 			]
 		},
 
+		getSportData: {
+			args: [
+				{sport: ''},
+				{markets: 'true'},
+				{keyMarkets: 'true'},
+				{groups: 'true'},
+				{channelId: {attr: 'channelId'}},
+				{locale: {attr: 'locale'}}
+			]
+		},
+
 		getResultHistoryEvents: {
 			args: [
 				'sport',
