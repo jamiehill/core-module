@@ -22,8 +22,8 @@ var Model = Backbone.Model.extend({
 	 * @returns {*}
 	 */
 	getSport: function(sport) {
-		sport = (sport || App.Globals.sport).toUpperCase();
 		var sports = this.get('sports');
+		sport = (sport || App.Globals.sport).toUpperCase();
 		return sports[sport];
 	},
 
