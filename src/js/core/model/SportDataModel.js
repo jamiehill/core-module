@@ -2,7 +2,7 @@
 var Model = Backbone.Model.extend({
 
 	defaults: {
-		"sports": []
+		"sports": {}
 	},
 
 
@@ -34,8 +34,8 @@ var Model = Backbone.Model.extend({
 	 * @returns {*}
 	 */
 	getMarkets: function(sport) {
-		var sport = this.getSport(sport);
-		return sport.markets;
+		var s = this.getSport(sport);
+		return s.markets;
 	},
 
 
@@ -45,8 +45,8 @@ var Model = Backbone.Model.extend({
 	 * @returns {exports.groups|{}|Array|groups|*}
 	 */
 	getGroups: function(sport) {
-		var sport = this.getSport(sport);
-		return sport.groups;
+		var s = this.getSport(sport);
+		return s.groups;
 	},
 
 
@@ -66,9 +66,10 @@ var Model = Backbone.Model.extend({
 	 * @param sport
 	 * @returns {*}
 	 */
-	getKeyMarket: function(sport) {
-		var sport = this.getSport(sport);
-		return _.first(sport.keyMarkets);
+	getKeyMarket: function(sport, returnType = true) {
+		var s = this.getSport(sport),
+			first = _.first(s.keyMarkets);
+		return returnType ? first : this.getMarketByType(first, sport);
 	},
 
 
@@ -78,11 +79,11 @@ var Model = Backbone.Model.extend({
 	 * @returns {"MRES": }
 	 */
 	getKeyMarkets: function(sport) {
-		var sport = this.getSport(sport);
-		return _.reduce(sport.keyMarkets, function(memo, type) {
-			memo[type] = this.getMarketByType(type);
+		var s = this.getSport(sport);
+		return _.reduce(s.keyMarkets, function(memo, type) {
+			memo.push(this.getMarketByType(type, sport));
 			return memo;
-		}, {}, this);
+		}, [], this);
 	},
 
 

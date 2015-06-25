@@ -9,7 +9,7 @@ export default class GetRegionalSports extends DeferredBase {
 
 	initialize() {
 		var that = this;
-		service.getSportData().then(function(resp) {
+		service.getSportData('SOCCER').then(function(resp) {
 			model.set({sports: resp});
 			that.success();
 		});
