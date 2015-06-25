@@ -15,7 +15,7 @@ var Controller = Marionette.Controller.extend({
 	initialize: function() {
 		// session
 		App.session.on(LOGGED_IN, this.onLoggedIn);
-		App.session.on(LOGGED_IN, this.onLoggedIn);
+		App.session.on(LOGGED_OUT, this.onLoggedOut);
 		// socket
 		App.socket.on(SOCKET_CLOSED, this.onClosed);
 
