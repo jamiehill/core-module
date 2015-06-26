@@ -1,6 +1,7 @@
 import Store from './Store';
-import {modelProps} from '../utils/ModelProps';
-import {getBalance} from '../service/ApiService';
+import {modelProps} from '../utils/AppUtil';
+import {execute} from '../utils/AppUtil';
+import service from '../service/ApiService';
 
 // model constants
 export const LOGGED_IN = 'session:loggedin';
@@ -35,7 +36,11 @@ var Model = Backbone.Model.extend({
 		var that = this;
 		_.bindAll(this, 'isLoggedIn');
 
+		// adds method execution in this scope
+		App.session.execute = execute(this);
+
 		// configure request/responses for decoupled interaction
+		App.session.reply('token', this.get('sessionToken'));
 		App.session.reply('loggedIn', this.isLoggedIn);
 		App.session.reply('session:details', function(props) {
 			return modelProps(that, props);
@@ -97,7 +102,7 @@ var Model = Backbone.Model.extend({
 	 */
 	storeSession: function(lgn, silent){
 		this.set(lgn, {silent: !!silent});
-		App.vent.trigger(LOGGED_IN, lgn);
+		App.session.trigger(LOGGED_IN, lgn);
 	},
 
 
@@ -114,7 +119,7 @@ var Model = Backbone.Model.extend({
 	 */
 	clearSession: function(){
 		this.Store.clear();
-		App.vent.trigger(LOGGED_OUT);
+		App.session.trigger(LOGGED_OUT);
 	},
 
 
@@ -125,15 +130,18 @@ var Model = Backbone.Model.extend({
 	recoverSession: function(){
 		var localSession = this.Store.get();
 		if (localSession == null) {
-			console.log('RecoveredSession :: NonePresent');
 			this.clearSession();
 		}
 
 		else {
-			this.storeSession(JSON.parse(localSession), true);
+
+			if (_.isString(localSession)) {
+				localSession = JSON.parse(localSession);
+			}
+			this.storeSession(localSession, true);
 			this.validateSession();
 
-			console.log('RecoveredSession :: '+JSON.stringify(localSession));
+			//console.log('RecoveredSession :: '+JSON.stringify(localSession));
 		}
 	},
 
@@ -145,7 +153,7 @@ var Model = Backbone.Model.extend({
 	validateSession: function() {
 		var that = this;
 		return new Promise(function(resolve, reject) {
-			getBalance.done(resolve).fail(function(){
+			service.getBalance().done(resolve).fail(function(){
 				console.log('InvalidSession :: '+JSON.stringify(that.Store.get()));
 				that.clearSession();
 				reject();

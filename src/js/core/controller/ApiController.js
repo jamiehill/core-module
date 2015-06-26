@@ -1,15 +1,16 @@
 import Marionette from 'backbone.marionette';
 import service  from '../service/ApiService';
 import {isNotLoggedIn} from '../service/HttpResponse';
-import {LOGGED_IN, LOGGED_OUT} from '../model/SessionModel';
+import {LOGGED_IN, LOGGED_OUT, NOT_LOGGED_IN_ERROR} from '../model/SessionModel';
 
 var Controller = Marionette.Controller.extend({
+	debug: false,
 
 	/**
 	 *
 	 */
 	initialize: function() {
-		_.bindAll(this, 'onLoggedIn', 'onLoggedOut');
+		_.bindAll(this, 'onLoggedIn', 'onLoggedOut', 'onSuccess', 'onFail');
 		App.session.on(LOGGED_IN, this.onLoggedIn);
 		App.session.on(LOGGED_OUT, this.onLoggedOut);
 	},
@@ -78,7 +79,7 @@ var Controller = Marionette.Controller.extend({
 			this.onFail(resp);
 			return;
 		}
-		console.log('Api :: Ok');
+		this.log('Ok');
 		this.ping();
 	},
 
@@ -86,9 +87,17 @@ var Controller = Marionette.Controller.extend({
 	 * @param er
 	 */
 	onFail: function(er) {
-		console.log('Api :: Fail');
-		App.session.trigger(NOT_LOGGED_IN_ERROR, er);
+		this.log('Fail');
+		if (isNotLoggedIn(er)) {
+			App.session.trigger(NOT_LOGGED_IN_ERROR, er);
+		}
 		this.ping();
+	},
+
+	log: function(msg) {
+		if (this.debug) {
+			console.log('Api :: '+msg);
+		}
 	}
 });
 

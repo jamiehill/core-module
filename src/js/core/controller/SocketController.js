@@ -5,22 +5,18 @@ import {LOGGED_IN, LOGGED_OUT} from '../model/SessionModel';
 var Controller = Marionette.Controller.extend({
 
 	socket: new SocketService(),
-	reconnectInt: 10000,
-	pingInterval: 10000,
+	reconnectInt: App.Config.socketReconnect,
+	pingInterval: App.Config.socketKeepAlive,
 	currentDelay: 0,
 
 	/**
 	 *
 	 */
 	initialize: function() {
-		// session
+		_.bindAll(this, 'onLoggedIn', 'onLoggedOut', 'onClosed');
 		App.session.on(LOGGED_IN, this.onLoggedIn);
 		App.session.on(LOGGED_OUT, this.onLoggedOut);
-		// socket
 		App.socket.on(SOCKET_CLOSED, this.onClosed);
-
-		this.reconnectInt = App.Config.socketReconnect;
-		this.pingInterval  = App.Config.socketKeepAlive;
 	},
 
 

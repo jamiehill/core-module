@@ -21,32 +21,39 @@ export default Marionette.Module.extend({
 	 */
 	boot(modules) {
 		console.log('Bootstrap - start');
-		var queue, promise, that = this;
 
-		queue = new DeferredQueue(modules),
-		promise = queue.init().then(function() {
-			that.start();
-		});
-
-		return promise;
+		var queue, that = this;
+		return new Promise(function(resolve, reject) {
+			queue = new DeferredQueue(modules);
+			queue.init().then(function() {
+				that.start(resolve);
+			});
+		})
 	},
 
 	/**
 	 * Start controllers
 	 */
-	onStart() {
+	onStart(resolve) {
 		console.log('Bootstrap - Complete');
+		var that = this;
 
-		var modules = ['core/controller/SocketController','core/controller/ApiController'],
-			that = this;
+		Promise.all([
+			// load the controllers
+			System.import('core/controller/SocketController'),
+			System.import('core/controller/ApiController')
 
-		load(modules).then(function(mods){
+		]).then(function(mods) {
+
+			// setup/start controllers
 			that.socket = mods[0].default;
 			that.socket.start();
 			that.api = mods[1].default;
 			that.api.start();
+
 			App.bus.trigger('core:complete');
-		});
+			resolve();
+		})
 	},
 
 	/**

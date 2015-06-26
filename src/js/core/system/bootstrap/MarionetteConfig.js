@@ -1,8 +1,8 @@
-import DeferredBase from '../defer/Deferred';
+import Deferred from '../defer/Deferred';
 import Marionette from 'backbone.marionette';
 
 
-export default class TranslatorConfig extends DeferredBase {
+export default class MarionetteConfig extends Deferred {
 	constructor() {
 		super('MarionetteConfig');
 	}
@@ -12,16 +12,20 @@ export default class TranslatorConfig extends DeferredBase {
 	 *
 	 */
 	initialize() {
+		this.addApplicationStop();
+		this.addRouterMods();
+		this.addHrefInterceptor();
+		this.success();
 
-		// Adds stop functionality to the main application
-		Marionette.Application.prototype.stop = function(options) {
-			this.triggerMethod('before:top', options);
-			this.triggerMethod('stop', options);
-		};
+	}
 
-		// All navigation that is relative should be passed through the navigate
-		// method, to be processed by the router. If the link has a `data-bypass`
-		// attribute, bypass the delegation completely.
+
+	/**
+	 * All navigation that is relative should be passed through the navigate
+	 * method, to be processed by the router. If the link has a `data-bypass`
+	 * attribute, bypass the delegation completely.
+	 */
+	addHrefInterceptor() {
 		$(document).on('click', 'a:not([data-bypass])', function(e) {
 			// Get the absolute anchor href.
 			var href = {
@@ -40,8 +44,50 @@ export default class TranslatorConfig extends DeferredBase {
 		$(document).on('click', 'a[data-bypass]', function(e) {
 			e.preventDefault();
 		});
-
-		this.success();
 	}
 
+
+	/**
+	 * Adds stop functionality to the main application
+	 */
+	addApplicationStop() {
+		Marionette.Application.prototype.stop = function(options) {
+			this.triggerMethod('before:top', options);
+			this.triggerMethod('stop', options);
+		};
+	}
+
+
+	/**
+	 * Overrides native functionality to NOT throw error when
+	 * checking if a route handler exists on this controller.`
+	 */
+	addRouterMods() {
+		Marionette.AppRouter.prototype._addAppRoute = function(controller, route, methodName) {
+			var method = controller['onRouteChange'];
+			this.route(route, methodName, _.bind(method, controller));
+		};
+
+		Marionette.AppRouter.prototype.route = function(route, name, callback) {
+			if (!_.isRegExp(route)) route = this._routeToRegExp(route);
+			if (_.isFunction(name)) {
+				callback = name;
+				name = '';
+			}
+			if (!callback) callback = this[name];
+			var router = this,
+				controller = this._getController();
+			Backbone.history.route(route, function(fragment) {
+				var args = router._extractParameters(route, fragment);
+				args.push(name);
+
+				controller['onRouteChange'].apply(this, args);
+
+				router.trigger.apply(router, ['route:' + name].concat(args));
+				router.trigger('route', name, args);
+				Backbone.history.trigger('route', router, name, args);
+			});
+			return this;
+		};
+	}
 }

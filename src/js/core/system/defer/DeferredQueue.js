@@ -25,6 +25,7 @@ export default class DeferredQueue extends Deferred {
 		// if there's steps left in the sequence, action them
 		if (!!this.queue.length) {
 			var obj = this.queue.shift();
+			// Deferred Object path
 			if (_.isString(obj)) {
 				System.import(obj).then(function(Obj) {
 					obj = new Obj.default(that.options);
@@ -32,9 +33,16 @@ export default class DeferredQueue extends Deferred {
 				}).catch(that.failure);
 			}
 
-			else {
+			// Deferred Object
+			else if(_.isFunction(obj)) {
 				obj = new obj(this.options);
 				obj.init().then(that.next).catch(that.failure);
+			}
+
+			// System.import path
+			else {
+				System.import(obj.path)
+					.then(that.next).catch(that.failure);
 			}
 
 			return;

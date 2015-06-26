@@ -1,5 +1,4 @@
 import SocketService, {PUBLIC_LOGIN_SUCCESS} from './SocketService'
-import {LOGGED_IN, LOGGED_OUT} from '../model/SessionModel';
 
 export const EVENT_TRADING_STATE = "streaming:eventTradingState";
 export const INCIDENTS = "streaming:incidents";

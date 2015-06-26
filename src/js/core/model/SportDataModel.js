@@ -80,6 +80,7 @@ var Model = Backbone.Model.extend({
 	 */
 	getKeyMarkets: function(sport) {
 		var s = this.getSport(sport);
+		return s.keyMarkets;
 		return _.reduce(s.keyMarkets, function(memo, type) {
 			memo.push(this.getMarketByType(type, sport));
 			return memo;
@@ -94,10 +95,10 @@ var Model = Backbone.Model.extend({
 	 */
 	getGroupsForEvent: function(event) {
 		var code  = event.get('code'),
-			sport = this.getSport(code);
+			groups = this.getGroups(code);
 
 		var markets = event.Markets.pluck('type');
-		var groups  = _.reduce(sport.groups, function(memo, name, group) {
+		var groups  = _.reduce(groups, function(memo, name, group) {
 			// an array of markets for this event,
 			// that are present in this market group
 			var present = _.intersection(markets, group.types);

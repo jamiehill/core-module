@@ -1,14 +1,16 @@
 import ServiceBase from './ServiceBase';
-import sessionModel from '../model/SessionModel';
-
 
 var Service = ServiceBase.extend({
 
-	url()  { return App.Urls.endpoint; },
-	surl() { return App.Urls.sendpoint; },
+	url()  {
+		return App.Urls.endpoint;
+	},
+	surl() {
+		return App.Urls.sendpoint;
+	},
 	defaults: {
 		sessionToken: function(){
-			return sessionModel.getSessionToken();
+			return App.session.execute('get', 'sessionToken');
 		},
 		application: function(){
 			return App.Config.application;
@@ -25,7 +27,7 @@ var Service = ServiceBase.extend({
 	targets: {
 		login: {
 			method: 'post',
-			secure: false,
+			secure: true,
 			args: [
 				'username',
 				'password',
@@ -56,7 +58,7 @@ var Service = ServiceBase.extend({
 
 		forgotPassword: {
 			method: 'post',
-			secure: false,
+			secure: true,
 			args: [
 				'username',
 				{application: {attr: 'application'}}
@@ -65,7 +67,7 @@ var Service = ServiceBase.extend({
 
 		checkSecurityAnswer: {
 			method: 'post',
-			secure: false,
+			secure: true,
 			args: [
 				'username',
 				'securityAnswer',

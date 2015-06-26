@@ -14,23 +14,19 @@ export default Marionette.Controller.extend({
 	initialize() {
 		_.bindAll(this, 'connect', 'onOpen', 'onMessage', 'onClose', 'onError');
 		this.pendingMessages = [];
-		this.reqRequired = false;
+		this.pending = false;
 		this.socket = null;
 		this.log('Start');
 	},
 
+
 	/**
 	 * Initiate the socket
 	 */
-	connect() {
+	connect: function() {
 		this.log('Connecting ...');
-
-		// if exists don't create new
-		//if (this.socket) return;
-		// decide which type of socket we should use
-		var WS = "MozWebSocket" in window ? 'MozWebSocket' : "WebSocket";
-
-		this.socket = new window[WS](App.Urls.wsendpoint);
+		this.pending = false;
+		this.socket  = this.ConnectSocket();
 		this.socket.onopen = this.onOpen;
 		this.socket.onmessage = this.onMessage;
 		this.socket.onclose = this.onClose;
@@ -41,6 +37,7 @@ export default Marionette.Controller.extend({
 	 * Disconnect the socket
 	 */
 	close() {
+		//this.socket.readyState = WebSocket.CLOSING;
 		this.socket.close();
 	},
 
@@ -71,8 +68,13 @@ export default Marionette.Controller.extend({
 	 * Returns the state of the socket
 	 */
 	state() {
-		return this.socket ?
-			this.socket.readyState : WebSocket.CLOSED;
+		// if there's a pending keepAlive, notify the state to be CLOSED,
+		// so that a reconnect is invoked rather than another keepAlive
+		if (this.pending || !this.socket) {
+			return WebSocket.CLOSED;
+		}
+		// otherwise just return it's state
+		return this.socket.readyState;
 	},
 
 
@@ -109,7 +111,7 @@ export default Marionette.Controller.extend({
 			var status = data.Response.status,
 				lowerError = status.toLowerCase();
 			if (lowerError == 'error') {
-				this.throwError('There is a problem with the WebSocket');
+				//this.throwError('There is a problem with the WebSocket');
 				return;
 			}
 			var reqId = data.Response.reqId;
@@ -119,11 +121,11 @@ export default Marionette.Controller.extend({
 				return;
 			}
 			if (reqId == KEEP_ALIVE_REQ_ID) {
-				this.reqRequired = false;
+				this.pending = false;
 			}
 		}
 		if (_.has(data, 'error')) {
-			this.throwError(data.error);
+			//this.throwError(data.error);
 			return;
 		}
 
@@ -136,7 +138,7 @@ export default Marionette.Controller.extend({
 	 */
 	onClose(event) {
 		App.socket.trigger(SOCKET_CLOSED);
-		this.log('Closed');
+		//this.log('Closed');
 	},
 
 	/**
@@ -151,6 +153,29 @@ export default Marionette.Controller.extend({
 	 * Private --------------------------------------------------------
 	 */
 
+	/**
+	 * @returns {WS}
+	 * @constructor
+	 */
+	ConnectSocket: function() {
+		// clean up any previous socket
+		if (this.socket) {
+			this.socket.close();
+			delete this.socket.onopen;
+			delete this.socket.onmessage;
+			delete this.socket.onclose;
+			delete this.socket.onerror;
+		}
+
+
+		// decide which type of socket we should use
+		var WS = "MozWebSocket" in window ? 'MozWebSocket' : "WebSocket";
+
+		// and return a new instance
+		return new window[WS](App.Urls.wsendpoint);
+	},
+
+
 
 	/**
 	 * Connecting - readyState: 0,
@@ -159,11 +184,11 @@ export default Marionette.Controller.extend({
 	 * Closed     - readyState: 3
 	 */
 	sendKeepAlive() {
-		if (this.reqRequired) {
+		if (this.pending) {
 			this.log('KeepAlive - Failed');
 			this.close();
 		}
-		this.reqRequired = true;
+		this.pending = true;
 		this.send('{KeepAlive:{reqId:' +KEEP_ALIVE_REQ_ID + '}}');
 		this.log('KeepAlive');
 	},
