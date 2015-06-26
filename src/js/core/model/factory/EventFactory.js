@@ -9,7 +9,7 @@ import {abbr} from 'core/utils/AppUtil';
 // default Model params
 let Model = {headers: ['1', 'x', '2'], sport: '', marketType: 'MRES', sortType: 'date', event: null, state: 'SUSPENDED', autoLoad: true, displayed: true};
 
-export default Marionette.Controller.extend({
+var Factory = Marionette.Controller.extend({
 
 	collection: null,
 	maxInplayEvents: 100,
@@ -169,14 +169,18 @@ export default Marionette.Controller.extend({
 		// add inplay events, upto the maximum specified
 		if (inply != 0 && schdl.inplay) {
 			total  = this.parseEvents(schdl.inplay.event);
-			events = events.concat(_.first(total, max));
+			if (total.length) {
+				events = events.concat(_.first(total, max));
+			}
 		}
 		// if events doesn't contain maiximum allowed amount,
 		// fill with prematch events upto the maximum amount
 		if (prmtch != 0 && schdl.prematch && events.length < max) {
 			var remainder = max - events.length;
 			total = this.parseEvents(schdl.prematch.event);
-			events = events.concat(_.first(total, remainder));
+			if (total.length) {
+				events = events.concat(_.first(total, remainder));
+			}
 		}
 
 		//this.parseCompetitions(schdl.competitions);
@@ -461,3 +465,5 @@ export default Marionette.Controller.extend({
 	}
 
 });
+
+export default new Factory();

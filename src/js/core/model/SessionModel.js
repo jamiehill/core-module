@@ -2,6 +2,7 @@ import Store from './Store';
 import {modelProps} from '../utils/AppUtil';
 import {execute} from '../utils/AppUtil';
 import service from '../service/ApiService';
+import login from 'core/command/Login';
 
 // model constants
 export const LOGGED_IN = 'session:loggedin';
@@ -140,8 +141,6 @@ var Model = Backbone.Model.extend({
 			}
 			this.storeSession(localSession, true);
 			this.validateSession();
-
-			//console.log('RecoveredSession :: '+JSON.stringify(localSession));
 		}
 	},
 
@@ -152,13 +151,12 @@ var Model = Backbone.Model.extend({
 	 */
 	validateSession: function() {
 		var that = this;
-		return new Promise(function(resolve, reject) {
-			service.getBalance().done(resolve).fail(function(){
-				console.log('InvalidSession :: '+JSON.stringify(that.Store.get()));
-				that.clearSession();
-				reject();
-			})
-		});
+		service.getBalance().fail(function(){
+			console.log('InvalidSession :: Retrying AutoLogin...');
+			var session = JSON.stringify(that.Store.get());
+			that.Store.clear();
+			login(session.username, session.password);
+		})
 	},
 
 
