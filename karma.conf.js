@@ -4,12 +4,10 @@ module.exports = function(config) {
 
 		basePath: '.',
 		logLevel: config.LOG_DEBUG,
-		frameworks: ['systemjs', 'mocha', 'chai', 'chai-as-promised', 'sinon-chai'],
+		frameworks: ['systemjs', 'mocha'],
 
 		plugins: [
 			'karma-mocha',
-			'karma-chai',
-			'karma-chai-plugins',
 			'karma-systemjs',
 			'karma-chrome-launcher',
 			'karma-phantomjs-launcher',
@@ -20,15 +18,15 @@ module.exports = function(config) {
 			configFile: 'config.js',
 			testFileSuffix: 'Spec.js',
 			files: [
+				'test/setupSpec.js',
 				'vendor/**/**',
-				'vendor/github/*',
-				'vendor/npm/*',
-				'test/**/*',
-				'test/**/*Spec.js',
+				'test/lib/**/*',
+				'test/spec/**/*Spec.js',
 				'src/js/**/*.*'
 			],
 			config: {
 				baseURL: "/",
+				defaultJSExtensions: true,
 				paths: {
 					'es6-module-loader': 'vendor/es6-module-loader.js',
 					'systemjs': 'vendor/system.js',
@@ -38,7 +36,13 @@ module.exports = function(config) {
 				"meta": {
 					"github:marionettejs/backbone.marionette@2.4.1/lib/core/backbone.marionette": {
 						"format": "amd",
-						"deps": [ "src/app/js/common/shims/marionette-shim" ]
+						"deps": [ "src/js/core/system/shims/marionette-shim" ]
+					},
+					"github:carhartl/jquery-cookie@1.4.1": {
+						"deps": [ "jquery" ]
+					},
+					"npm:underscore.string@^3.1.1": {
+						"deps": [ "underscore" ]
 					},
 					"di-lite": {
 						"format": [ "global" ]
@@ -48,7 +52,7 @@ module.exports = function(config) {
 		},
 
 
-		browsers: ['PhantomJS'],
+		browsers: ['Chrome'],
 		reporters: ['spec'],
 
 

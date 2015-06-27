@@ -8,21 +8,35 @@ System.config({
   },
   "paths": {
     "*": "*.js",
-    "github:*": "../../vendor/github/*.js",
-    "npm:*": "../../vendor/npm/*.js"
+    "github:*": "vendor/github/*.js",
+    "npm:*": "vendor/npm/*.js"
   }
 });
 
 System.config({
-    "meta": {
-        "github:marionettejs/backbone.marionette@2.4.1/lib/core/backbone.marionette": {
-            "format": "amd",
-            "deps": [ "marionette-shim" ]
-        },
-        "di-lite": {
-            "format": [ "global" ]
-        }
+  "meta": {
+    "github:marionettejs/backbone.marionette@2.4.1/lib/core/backbone.marionette": {
+      "format": "amd",
+      "deps": [
+        "marionette-shim"
+      ]
+    },
+    "github:carhartl/jquery-cookie@1.4.1": {
+      "deps": [
+        "jquery"
+      ]
+    },
+    "di-lite": {
+      "format": [
+        "global"
+      ]
+    },
+    "moment": {
+      "format": [
+        "global"
+      ]
     }
+  }
 });
 
 System.config({
@@ -34,16 +48,24 @@ System.config({
     "backbone.marionette": "github:marionettejs/backbone.marionette@2.4.1",
     "backbone.radio": "npm:backbone.radio@0.9.0",
     "backbone.wreqr": "github:marionettejs/backbone.wreqr@1.3.2",
+    "carhartl/jquery-cookie": "github:carhartl/jquery-cookie@1.4.1",
+    "chai": "npm:chai@3.0.0",
     "core-js": "npm:core-js@0.9.18",
     "di-lite": "npm:di-lite@0.3.3",
     "jquery": "github:components/jquery@2.1.4",
+    "jquery-cookie": "github:carhartl/jquery-cookie@1.4.1",
+    "json": "github:systemjs/plugin-json@0.1.0",
     "jsx": "github:floatdrop/plugin-jsx@1.1.0",
+    "marionette-shim": "../../src/js/core/system/shims/marionette-shim",
     "marionettejs/backbone.marionette": "github:marionettejs/backbone.marionette@2.4.1",
-    "marionette-shim": "../../../src/modules/core-module/src/js/core/shims/marionette-shim",
+    "moment": "github:moment/moment@2.10.3",
     "process": "npm:process@0.11.1",
     "react": "npm:react@0.14.0-alpha3",
+    "sinon": "npm:sinon@1.15.3",
+    "sinon-chai": "npm:sinon-chai@2.8.0",
     "systemjs/plugin-text": "github:systemjs/plugin-text@0.0.2",
     "underscore": "npm:lodash@3.9.3",
+    "underscore.string": "npm:underscore.string@3.1.1",
     "github:floatdrop/plugin-jsx@1.1.0": {
       "react-tools": "npm:react-tools@0.13.3"
     },
@@ -157,6 +179,14 @@ System.config({
       "ieee754": "npm:ieee754@1.1.6",
       "is-array": "npm:is-array@1.0.1"
     },
+    "npm:chai@3.0.0": {
+      "assertion-error": "npm:assertion-error@1.0.1",
+      "buffer": "github:jspm/nodelibs-buffer@0.1.0",
+      "deep-eql": "npm:deep-eql@0.1.3",
+      "process": "github:jspm/nodelibs-process@0.1.1",
+      "systemjs-json": "github:systemjs/plugin-json@0.1.0",
+      "type-detect": "npm:type-detect@1.0.0"
+    },
     "npm:commander@2.5.1": {
       "child_process": "github:jspm/nodelibs-child_process@0.1.0",
       "events": "github:jspm/nodelibs-events@0.1.1",
@@ -228,6 +258,10 @@ System.config({
       "public-encrypt": "npm:public-encrypt@2.0.1",
       "randombytes": "npm:randombytes@2.0.1"
     },
+    "npm:deep-eql@0.1.3": {
+      "buffer": "github:jspm/nodelibs-buffer@0.1.0",
+      "type-detect": "npm:type-detect@0.1.1"
+    },
     "npm:di-lite@0.3.3": {
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
@@ -258,6 +292,10 @@ System.config({
     "npm:esprima-fb@13001.1001.0-dev-harmony-fb": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "process": "github:jspm/nodelibs-process@0.1.1"
+    },
+    "npm:formatio@1.1.1": {
+      "process": "github:jspm/nodelibs-process@0.1.1",
+      "samsam": "npm:samsam@1.1.2"
     },
     "npm:glob@4.2.2": {
       "assert": "github:jspm/nodelibs-assert@0.1.0",
@@ -422,6 +460,17 @@ System.config({
       "http": "github:jspm/nodelibs-http@1.7.1",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
+    "npm:sinon-chai@2.8.0": {
+      "chai": "npm:chai@3.0.0",
+      "sinon": "npm:sinon@1.15.3"
+    },
+    "npm:sinon@1.15.3": {
+      "formatio": "npm:formatio@1.1.1",
+      "lolex": "npm:lolex@1.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.1",
+      "samsam": "npm:samsam@1.1.2",
+      "util": "npm:util@0.10.3"
+    },
     "npm:source-map@0.1.31": {
       "amdefine": "npm:amdefine@0.1.1",
       "fs": "github:jspm/nodelibs-fs@0.1.2",
@@ -445,6 +494,9 @@ System.config({
     "npm:through@2.3.7": {
       "process": "github:jspm/nodelibs-process@0.1.1",
       "stream": "github:jspm/nodelibs-stream@0.1.0"
+    },
+    "npm:underscore.string@3.1.1": {
+      "process": "github:jspm/nodelibs-process@0.1.1"
     },
     "npm:url@0.10.3": {
       "assert": "github:jspm/nodelibs-assert@0.1.0",
