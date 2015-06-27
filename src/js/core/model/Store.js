@@ -19,12 +19,17 @@ define(['backbone.marionette', 'underscore'],
 				var persistence = this.options.persistence;
 				this.store = this[persistence];
 
-				// turn on automatic storage of JSON objects
-				$.cookie.json = true;
+				console.log('Persistence :: '+persistence);
 
-				// cookie defaults
-				$.cookie.defaults = {
-					secure: false
+				// turn on automatic storage of JSON objects, for jquery.cookie,
+				// if 'cookie' is specified as the storage type
+				if (persistence == 'cookie') {
+					$.cookie.json = true;
+
+					// cookie defaults
+					$.cookie.defaults = {
+						secure: false
+					}
 				}
 			},
 

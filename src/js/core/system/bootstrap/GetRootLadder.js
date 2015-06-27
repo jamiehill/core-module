@@ -1,13 +1,13 @@
 import DeferredBase from '../defer/Deferred';
+import oddsFactory from '../../model/factory/OddsFactory';
 
 export default class RootLadder extends DeferredBase {
-	constructor(name) {
+	constructor() {
 		super('RootLadder');
 	}
 
 	initialize() {
-		ctx.get('oddsFactory')
-			.fetch().done(this.success);
+		oddsFactory.fetch().done(this.success);
 	}
 
 }

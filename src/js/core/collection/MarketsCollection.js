@@ -1,4 +1,4 @@
-import keyMarketsModel from '../model/KeyMarketsModel';
+import dataModel from '../model/SportDataModel';
 import Market from '../model/Market';
 import Selection from '../model/Selection';
 import collection from '../utils/CollectionUtil';
@@ -85,68 +85,68 @@ var Markets = Backbone.Collection.extend({
 	/**
 	 * @param options
 	 */
-	//byDisplayed: function() {
-	//	var filtered = this.filter(function(market) {
-	//		return ((market.get("displayed") === true || market.get("displayed") === 'true') && market.get("state") != 'CLOSED');
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byDisplayed: function() {
+		var filtered = this.filter(function(market) {
+			return ((market.get("displayed") === true || market.get("displayed") === 'true') && market.get("state") != 'CLOSED');
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
 	 * @returns {Markets}
 	 */
-	//hasSelections: function() {
-	//	var filtered = this.filter(function(market) {
-	//		return (market.Selections.length >0);
-	//	});
-	//	return new Markets(filtered);
-	//},
+	hasSelections: function() {
+		var filtered = this.filter(function(market) {
+			return (market.Selections.length >0);
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
 	 * @param types
 	 * @returns {Markets}
 	 */
-	//byTypes: function(types) {
-	//	// firstly make sure all market types are uppercase
-    //
-	//	var marketTypes = _.map(types, function(type){
-	//		type = type.toString();
-	//		return type.toUpperCase()
-	//	});
-    //
-	//	if (_.size(types) == 0) {
-	//		return this;
-	//	}
-    //
-	//	// then filter out markets with matching types
-	//	var filtered = this.filter(function(market) {
-	//		var marketType = market.get('type');
-	//		return _.contains(marketTypes, marketType);
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byTypes: function(types) {
+		// firstly make sure all market types are uppercase
+
+		var marketTypes = _.map(types, function(type){
+			type = type.toString();
+			return type.toUpperCase()
+		});
+
+		if (_.size(types) == 0) {
+			return this;
+		}
+
+		// then filter out markets with matching types
+		var filtered = this.filter(function(market) {
+			var marketType = market.get('type');
+			return _.contains(marketTypes, marketType);
+		});
+		return new Markets(filtered);
+	},
 
 	/**
 	 * @param type
 	 * @returns {Markets}
 	 */
-	//byType: function(type) {
-	//	 if (type == 0 || type == null || type == undefined) {
-	//		return this;
-	//	}
-    //
-	//	// firstly make sure all market types are uppercase
-	//	var marketType = type.toUpperCase();
-    //
-	//	// then filter out markets with matching types
-	//	var filtered = this.filter(function(market) {
-	//		var marketType = market.get('type');
-	//		return type == marketType;
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byType: function(type) {
+		 if (type == 0 || type == null || type == undefined) {
+			return this;
+		}
+
+		// firstly make sure all market types are uppercase
+		var marketType = type.toUpperCase();
+
+		// then filter out markets with matching types
+		var filtered = this.filter(function(market) {
+			var marketType = market.get('type');
+			return type == marketType;
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
@@ -167,59 +167,59 @@ var Markets = Backbone.Collection.extend({
 	 * @param value
 	 * @returns {Markets}
 	 */
-	//byAttrib: function(attrib, value) {
-	//	var filtered = this.filter(function(market) {
-	//		return market.get(attrib) == value;
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byAttrib: function(attrib, value) {
+		var filtered = this.filter(function(market) {
+			return market.get(attrib) == value;
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
 	 * @returns {Markets}
 	 */
-	//byMostBalanced: function() {
-	//	var filtered = this.filter(function(market) {
-	//		if (market.attributes.displayed == false)
-	//			return false;
-	//		if (market.attributes.type == 'OVUN' && market.attributes.mostBalanced == false)
-	//			return false;
-	//		if (market.attributes.type == 'OUH1'&& market.attributes.mostBalanced == false)
-	//			return false;
-	//		return true;
-	//	});
-	//	return new Markets(filtered);
-	//},
-
-
-	/**
-	 * @param sport
-	 * @returns {Markets}
-	 */
-	//byKeyMarkets: function(sport) {
-	//	sport = sport || App.Globals.sport;
-    //
-	//	var keyMarkets = keyMarketsModel.getMarkets(sport, false);
-	//	var filtered = this.filter(function(market) {
-	//		return _.includes(keyMarkets, market.get('type'));
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byMostBalanced: function() {
+		var filtered = this.filter(function(market) {
+			if (market.attributes.displayed == false)
+				return false;
+			if (market.attributes.type == 'OVUN' && market.attributes.mostBalanced == false)
+				return false;
+			if (market.attributes.type == 'OUH1'&& market.attributes.mostBalanced == false)
+				return false;
+			return true;
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
 	 * @param sport
 	 * @returns {Markets}
 	 */
-	//byKeyMarket: function(sport) {
-	//	sport = sport || App.Globals.sport;
-    //
-	//	var keyMarket = this.keyMarketsModel.getDefaultMarket(sport);
-	//	var filtered = this.filter(function(market) {
-	//		return market.get('type') == keyMarket;
-	//	});
-	//	return new Markets(filtered);
-	//},
+	byKeyMarkets: function(sport) {
+		sport = sport || App.Globals.sport;
+
+		var keyMarkets = dataModel.getKeyMarkets(sport);
+		var filtered = this.filter(function(market) {
+			return _.includes(keyMarkets, market.get('type'));
+		});
+		return new Markets(filtered);
+	},
+
+
+	/**
+	 * @param sport
+	 * @returns {Markets}
+	 */
+	byKeyMarket: function(sport) {
+		sport = sport || App.Globals.sport;
+
+		var keyMarket = dataModel.getKeyMarket(sport);
+		var filtered = this.filter(function(market) {
+			return market.get('type') == keyMarket;
+		});
+		return new Markets(filtered);
+	},
 
 
 	/**
@@ -244,57 +244,57 @@ var Markets = Backbone.Collection.extend({
 	 * @param types
 	 * @returns {*}
 	 */
-	//groupSelections: function(col, type) {
-	//	var markets = col.byTypesAndSub(type);
-	//	var container = _.first(markets.models);
-    //
-	//	if (markets.length == 0) return col;
-	//	var markets = _.map(markets.models, function(market) {
-	//		// if the market is not the container market,
-	//		// remove from the markets collection
-	//		if (market.id != container.id) {
-	//			col.remove(market.id);
-	//		}
-	//		return market;
-	//	}, this);
-    //
-	//	// add related markets to the conatiner market
-	//	container.RelatedMarkets = new Markets(markets);
-    //
-	//	//console.log('GroupedMarket: '+container.attributes.name+', type: '+container.attributes.type+', subtype: '+container.attributes.subtype);
-	//	//_.each(container.RelatedMarkets.models, function(m) {
-	//	//    console.log('- Market: '+m.attributes.name+', type: '+m.attributes.type+', subtype: '+m.attributes.subtype);
-	//	//});
-	//	//console.log(' ');
-    //
-	//	return col;
-	//},
+	groupSelections: function(col, type) {
+		var markets = col.byTypesAndSub(type);
+		var container = _.first(markets.models);
+
+		if (markets.length == 0) return col;
+		var markets = _.map(markets.models, function(market) {
+			// if the market is not the container market,
+			// remove from the markets collection
+			if (market.id != container.id) {
+				col.remove(market.id);
+			}
+			return market;
+		}, this);
+
+		// add related markets to the conatiner market
+		container.RelatedMarkets = new Markets(markets);
+
+		//console.log('GroupedMarket: '+container.attributes.name+', type: '+container.attributes.type+', subtype: '+container.attributes.subtype);
+		//_.each(container.RelatedMarkets.models, function(m) {
+		//    console.log('- Market: '+m.attributes.name+', type: '+m.attributes.type+', subtype: '+m.attributes.subtype);
+		//});
+		//console.log(' ');
+
+		return col;
+	},
 
 
 	/**
 	 * @param filterMarket
 	 * @returns {*}
 	 */
-	//byTypesAndSub: function(filterMarket) {
-	//	// firstly make sure all market types are uppercase
-    //
-	//	if (_.size(filterMarket) == 0) {
-	//		return this;
-	//	}
-    //
-	//	// then filter out markets with matching types
-	//	var filtered = this.filter(function(market) {
-	//		var marketIsIn = (market.get('type') === filterMarket.type);
-	//		if ( marketIsIn && filterMarket.subtype) {
-	//			marketSubTypeMatches = market.get('subtype').indexOf(filterMarket.subtype) !== -1 ;
-	//			marketIsIn = marketIsIn && marketSubTypeMatches;
-	//		}
-    //
-	//		return marketIsIn;
-	//	});
-    //
-	//	return new Markets(filtered);
-	//}
+	byTypesAndSub: function(filterMarket) {
+		// firstly make sure all market types are uppercase
+
+		if (_.size(filterMarket) == 0) {
+			return this;
+		}
+
+		// then filter out markets with matching types
+		var filtered = this.filter(function(market) {
+			var marketIsIn = (market.get('type') === filterMarket.type);
+			if ( marketIsIn && filterMarket.subtype) {
+				marketSubTypeMatches = market.get('subtype').indexOf(filterMarket.subtype) !== -1 ;
+				marketIsIn = marketIsIn && marketSubTypeMatches;
+			}
+
+			return marketIsIn;
+		});
+
+		return new Markets(filtered);
+	}
 
 });
 

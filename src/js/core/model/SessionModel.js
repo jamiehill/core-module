@@ -1,14 +1,18 @@
 import Store from './Store';
-import Radio from 'backbone.radio';
+import {modelProps} from '../utils/AppUtil';
+import {execute} from '../utils/AppUtil';
+import service from '../service/ApiService';
+import login from 'core/command/Login';
 
 // model constants
 export const LOGGED_IN = 'session:loggedin';
 export const LOGGED_OUT = 'session:loggedout';
 export const NOT_LOGGED_IN_ERROR = 'session:errorNotLoggedIn';
 
-export default Backbone.Model.extend({
+var Model = Backbone.Model.extend({
 
 	Store: null,
+	defaultStore: 'cookie',
 	defaults: {
 		name: '-',
 		accountId: '-',
@@ -31,26 +35,28 @@ export default Backbone.Model.extend({
 	 */
 	initialize: function() {
 		var that = this;
+		_.bindAll(this, 'isLoggedIn');
 
-		// create channel for session and a request/response
-		// to return arbitrary model properties
-		App.session = Radio.channel('session');
+		// adds method execution in this scope
+		App.session.execute = execute(this);
+
+		// configure request/responses for decoupled interaction
+		App.session.reply('token', this.get('sessionToken'));
+		App.session.reply('loggedIn', this.isLoggedIn);
 		App.session.reply('session:details', function(props) {
-			return _.reduce(props, function(obj, prop) {
-				obj[prop] = this.get(prop);
-			}, {}, that);
+			return modelProps(that, props);
 		});
 
-		// if this is the embedded src, use localStorage
-		var store = 'sessionStorage';
-
-		// In some environment (like Android webviews) localStorage is not available
-		// In that case, use cookies
+		// degrade the storage type depending on what
+		// the user's browser has availle to use
+		var store = this.defaultStore;
+		if (store == 'sessionStorage' && !sessionStorage) {
+			store = 'localStorage';
+		}
 		if (store === 'localStorage' && !localStorage){
 			store = 'cookie';
 		}
 
-		console.log('Persistence :: '+store);
 		this.Store = new Store({persistence: store, name: 'session'});
 		this.recoverSession();
 	},
@@ -91,22 +97,13 @@ export default Backbone.Model.extend({
 		return !this.isLoggedIn();
 	},
 
-
 	/**
 	 * @param lgn
 	 * @param persist
 	 */
 	storeSession: function(lgn, silent){
 		this.set(lgn, {silent: !!silent});
-		App.vent.trigger(LOGGED_IN, lgn);
-	},
-
-
-	/**
-	 * @param cookieSession
-	 */
-	storeSessionFromCookie: function(cookieSession){
-		this.set(JSON.parse(cookieSession));
+		App.session.trigger(LOGGED_IN, lgn);
 	},
 
 
@@ -123,7 +120,7 @@ export default Backbone.Model.extend({
 	 */
 	clearSession: function(){
 		this.Store.clear();
-		App.vent.trigger(LOGGED_OUT);
+		App.session.trigger(LOGGED_OUT);
 	},
 
 
@@ -134,15 +131,32 @@ export default Backbone.Model.extend({
 	recoverSession: function(){
 		var localSession = this.Store.get();
 		if (localSession == null) {
-			console.log('RecoveredSession :: NonePresent');
 			this.clearSession();
 		}
 
 		else {
 
-			console.log('RecoveredSession :: '+JSON.stringify(localSession));
-			this.storeSession(JSON.parse(localSession), true);
+			if (_.isString(localSession)) {
+				localSession = JSON.parse(localSession);
+			}
+			this.storeSession(localSession, true);
+			this.validateSession();
 		}
+	},
+
+
+	/**
+	 * Validates the current session token
+	 * @returns {Promise}
+	 */
+	validateSession: function() {
+		var that = this;
+		service.getBalance().fail(function(){
+			console.log('InvalidSession :: Retrying AutoLogin...');
+			var session = JSON.stringify(that.Store.get());
+			that.Store.clear();
+			login(session.username, session.password);
+		})
 	},
 
 
@@ -261,3 +275,6 @@ export default Backbone.Model.extend({
 	}
 
 });
+
+let inst = new Model();
+export default inst;

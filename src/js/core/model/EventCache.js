@@ -1,7 +1,7 @@
 import Event from './Event';
 
 
-export default Backbone.Collection.extend({
+var Collection = Backbone.Collection.extend({
 
 	model: Event,
 	sports: {},
@@ -54,27 +54,14 @@ export default Backbone.Collection.extend({
 			this.addEvent(evt);
 
 		var event = this.getEvent(evt.id);
-		event.populate(evt);
+		var data = event.parse(evt);
+		event.set(data);
 		if (event.get('code') == "") {
 			var defaultSport = App.Globals.sport;
 			event.set('code',defaultSport)
 		}
 		return event;
 	},
-
-	/*
-
-	 getEvent: {
-	 args: [
-	 'eventId',
-	 { marketTypes : '' },
-	 { channelId: { attr: 'channelId' }},
-	 { locale: { attr: 'locale' }}
-	 ]
-	 },
-
-
-	 */
 
 
 	/**
@@ -83,26 +70,6 @@ export default Backbone.Collection.extend({
 	 */
 	getEvent: function(id){
 		return this.get(id);
-	},
-
-
-	/**
-	 * @returns {*}
-	 */
-	loadEvent: function(id, marketTypes) {
-		var marketType = marketTypes || ctx.get('keyMarketsModel').getDefaultMarket(),
-			deferred = $.Deferred(),
-			that = this;
-
-		// load the event
-		ctx.get('apiService')
-			.getEvent(id, marketType)
-			.done(function(resp) {
-				var event = that.updateEvent(resp.Event);
-				deferred.resolve(event)
-			});
-
-		return deferred;
 	},
 
 
@@ -138,3 +105,6 @@ export default Backbone.Collection.extend({
 		return _.isUndefined(event) || _.isNull(event);
 	}
 });
+
+let inst = new Collection();
+export default inst;

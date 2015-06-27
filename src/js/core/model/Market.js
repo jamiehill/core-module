@@ -1,5 +1,6 @@
 import Selection from './Selection';
 import SelectionsCollection from '../collection/SelectionsCollection';
+import oddsFactory from '../model/factory/OddsFactory';
 
 export default Backbone.Model.extend({
 
@@ -17,19 +18,6 @@ export default Backbone.Model.extend({
 		displayed : true,
 		mostBalanced : false,
 		line : null
-	},
-
-	/**
-	 */
-	initialize: function() {
-		_.bindAll(this, 'oddsFactory');
-	},
-
-	/**
-	 * Methodized for stubbing purposes
-	 */
-	oddsFactory: function() {
-		return ctx.get("oddsFactory");
 	},
 
 	/**
@@ -79,7 +67,7 @@ export default Backbone.Model.extend({
 					if (s.rootIdx == -1)
 						s.americanOdds = '-';
 					else {
-						var oddsObj = this.oddsFactory().getOddsByIndex(s.rootIdx);
+						var oddsObj = oddsFactory.getOddsByIndex(s.rootIdx);
 						s.decimalOdds = oddsObj.decimal;
 						s.fractionalOdds = oddsObj.fractional;
 						s.americanOdds = oddsObj.american;
@@ -135,7 +123,7 @@ export default Backbone.Model.extend({
 	 */
 	onSelectionPriceChange: function(event) {
 		var vent = ctx.get("vent");
-		var oddsObj = this.oddsFactory().getOddsByIndex(event.attributes.rootIdx);
+		var oddsObj = oddsFactory.getOddsByIndex(event.attributes.rootIdx);
 		if (oddsObj) {
 			event.set('decimalOdds',oddsObj.decimal);
 			event.set('fractionalOdds',oddsObj.fractional);

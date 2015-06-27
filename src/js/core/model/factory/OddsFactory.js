@@ -1,6 +1,6 @@
 
 
-export default Backbone.Model.extend({
+var Factory = Backbone.Model.extend({
 
 	defaults: {
 		priceAdjustment: 0,
@@ -93,6 +93,9 @@ export default Backbone.Model.extend({
 		return americanOdds;
 	}
 });
+
+let inst = new Factory();
+export default inst;
 
 
 

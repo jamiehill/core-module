@@ -12,21 +12,21 @@ export const PUBLIC_LOGIN_FAILURE = 'socket:publicLoginFailure';
 
 export default Marionette.Controller.extend({
 	initialize() {
-		// initialize channel for socket
-		App.socket = Radio.channel('socket');
-
+		_.bindAll(this, 'connect', 'onOpen', 'onMessage', 'onClose', 'onError');
 		this.pendingMessages = [];
+		this.pending = false;
 		this.socket = null;
-
-		// connect at startup
-		this.connect();
+		this.log('Start');
 	},
+
 
 	/**
 	 * Initiate the socket
 	 */
-	connect() {
-		this.socket = this.ConnectSocket();
+	connect: function() {
+		this.log('Connecting ...');
+		this.pending = false;
+		this.socket  = this.ConnectSocket();
 		this.socket.onopen = this.onOpen;
 		this.socket.onmessage = this.onMessage;
 		this.socket.onclose = this.onClose;
@@ -37,6 +37,7 @@ export default Marionette.Controller.extend({
 	 * Disconnect the socket
 	 */
 	close() {
+		//this.socket.readyState = WebSocket.CLOSING;
 		this.socket.close();
 	},
 
@@ -62,6 +63,21 @@ export default Marionette.Controller.extend({
 		}
 	},
 
+
+	/**
+	 * Returns the state of the socket
+	 */
+	state() {
+		// if there's a pending keepAlive, notify the state to be CLOSED,
+		// so that a reconnect is invoked rather than another keepAlive
+		if (this.pending || !this.socket) {
+			return WebSocket.CLOSED;
+		}
+		// otherwise just return it's state
+		return this.socket.readyState;
+	},
+
+
 	/**
 	 * Abstract method. Override in Subclass.
 	 * @param data
@@ -70,18 +86,21 @@ export default Marionette.Controller.extend({
 
 	},
 
+
 	/**
 	 * Handlers --------------------------------------------------------
 	 */
+
 
 	/**
 	 * Handle socket onOpen events
 	 */
 	onOpen(event) {
-		console.log('Websocket :: Open');
+		this.log('Open');
 		App.socket.trigger(SOCKET_OPEN);
 		this.send(this.PublicLogin());
 	},
+
 
 	/**
 	 * handle received socket messages
@@ -92,7 +111,7 @@ export default Marionette.Controller.extend({
 			var status = data.Response.status,
 				lowerError = status.toLowerCase();
 			if (lowerError == 'error') {
-				this.throwError('There is a problem with the WebSocket');
+				//this.throwError('There is a problem with the WebSocket');
 				return;
 			}
 			var reqId = data.Response.reqId;
@@ -101,21 +120,25 @@ export default Marionette.Controller.extend({
 				this.sendPendingMessages();
 				return;
 			}
+			if (reqId == KEEP_ALIVE_REQ_ID) {
+				this.pending = false;
+			}
 		}
 		if (_.has(data, 'error')) {
-			this.throwError(data.error);
+			//this.throwError(data.error);
 			return;
 		}
 
 		this.parseMessage(data);
 	},
 
+
 	/**
 	 *
 	 */
 	onClose(event) {
-		console.log('Websocket :: Closed');
 		App.socket.trigger(SOCKET_CLOSED);
+		//this.log('Closed');
 	},
 
 	/**
@@ -125,6 +148,7 @@ export default Marionette.Controller.extend({
 		this.throwError(err);
 	},
 
+
 	/**
 	 * Private --------------------------------------------------------
 	 */
@@ -133,7 +157,7 @@ export default Marionette.Controller.extend({
 	 * @returns {WS}
 	 * @constructor
 	 */
-	ConnectSocket() {
+	ConnectSocket: function() {
 		// clean up any previous socket
 		if (this.socket) {
 			this.socket.close();
@@ -143,12 +167,14 @@ export default Marionette.Controller.extend({
 			delete this.socket.onerror;
 		}
 
+
 		// decide which type of socket we should use
 		var WS = "MozWebSocket" in window ? 'MozWebSocket' : "WebSocket";
 
 		// and return a new instance
 		return new window[WS](App.Urls.wsendpoint);
 	},
+
 
 
 	/**
@@ -158,43 +184,54 @@ export default Marionette.Controller.extend({
 	 * Closed     - readyState: 3
 	 */
 	sendKeepAlive() {
-		// if the socket is open, do a 'keepAlive'
-		if (this.socket.readyState == WebSocket.OPEN) {
-			this.send('{KeepAlive:{reqId:' + this.KEEP_ALIVE_REQ_ID + '}}');
-			console.log('Websocket :: KeepAlive');
+		if (this.pending) {
+			this.log('KeepAlive - Failed');
+			this.close();
 		}
-
-		// but if closed, substitute the 'keepAlive' for a 'connect'
-		else {
-			console.log('Websocket :: Reconnecting ...');
-			this.connect();
-		}
+		this.pending = true;
+		this.send('{KeepAlive:{reqId:' +KEEP_ALIVE_REQ_ID + '}}');
+		this.log('KeepAlive');
 	},
+
 
 	/**
 	 * Send all messages queued before socket was connected
 	 */
 	sendPendingMessages() {
-		console.log('Websocket :: SendingPendingMessages');
-		_.each(this.pendingMessages, this.send, this);
-		this.pendingMessages = [];
+		if (this.pendingMessages.length) {
+			this.log('SendingPendingMessages');
+			_.each(this.pendingMessages, this.send, this);
+			this.pendingMessages = [];
+		}
 	},
+
 
 	/**
 	 * Convenience method for throwing socket errors
 	 * @param message
 	 */
 	throwError(error) {
-		console.log('Websocket :: Error :: '+JSON.stringify(error));
+		//this.log('Error :: '+JSON.stringify(error));
 		App.socket.trigger(SOCKET_ERROR, error);
 	},
+
+
+	/**
+	 * @param msg
+	 */
+	log: function(msg) {
+		//if (msg == this.lastMsg) return;
+		console.log('Websocket :: '+msg);
+		this.lastMsg = msg;
+	},
+
 
 	/**
 	 * Public login
 	 */
 	PublicLogin() {
 		return {
-			PublicLoginRequest = {
+			PublicLoginRequest: {
 				application: App.Config.appid,
 				locale: App.Config.defaultChannel,
 				channel: App.Config.channel,
@@ -211,7 +248,7 @@ export default Marionette.Controller.extend({
 	UpgradePublicLogin() {
 		var details = App.session.request('session:details', ['name', 'accountId', 'sessionToken']);
 		return {
-			UpgradePublicLoginRequest = {
+			UpgradePublicLoginRequest: {
 				userName: details.name,
 				accountId: details.accountId,
 				apiSessionToken: details.sessionToken,
