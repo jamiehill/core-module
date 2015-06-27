@@ -9,7 +9,8 @@ System.config({
   "paths": {
     "*": "*.js",
     "github:*": "../../vendor/github/*.js",
-    "npm:*": "../../vendor/npm/*.js"
+    "npm:*": "../../vendor/npm/*.js",
+		"core*": "../../modules/core-module/src/js/core*.js"
   }
 });
 
@@ -39,7 +40,7 @@ System.config({
     "jquery": "github:components/jquery@2.1.4",
     "jsx": "github:floatdrop/plugin-jsx@1.1.0",
     "marionettejs/backbone.marionette": "github:marionettejs/backbone.marionette@2.4.1",
-    "marionette-shim": "../../../src/modules/core-module/src/js/core/shims/marionette-shim",
+    "marionette-shim": "../../../src/modules/core-module/src/js/core/system/shims/marionette-shim",
     "process": "npm:process@0.11.1",
     "react": "npm:react@0.14.0-alpha3",
     "systemjs/plugin-text": "github:systemjs/plugin-text@0.0.2",
