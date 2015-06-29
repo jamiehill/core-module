@@ -7,6 +7,7 @@ import cache from 'core/model/EventCache';
 var Model = Backbone.Model.extend({
 
 	deferred: null,
+	defaultEvents: {},
 	Sports: {},
 	Countries: {},
 	Leagues: {},
@@ -60,7 +61,7 @@ var Model = Backbone.Model.extend({
 		this.deferred = $.Deferred();
 		var that = this;
 
-		service.getSportTree(sport.toUpperCase(), true)
+		service.getSportTree(sport.toUpperCase(), true, true)
 			.done(function(resp){
 				if (_.has(resp, 'Sport') && _.has(resp.Sport, 'competitions')) {
 					that.parseCompetitions(resp.Sport.competitions.category);
@@ -89,7 +90,44 @@ var Model = Backbone.Model.extend({
 			// map out the leagues for this country
 			leagues = _.map(cntry.competition, function(lg) {
 				_.extend(lg, {level: 'league', parent: country});
-				return this.store(lg, this.Leagues);
+
+				var league = this.store(lg, this.Leagues);
+				var evvvttss = _.filter(lg.event, function(eeeee) {
+					return eeeee.markets && eeeee.markets.length;
+				})
+
+				var marketTypes = _.groupBy(evvvttss, function(ee) {
+					if (ee.markets && ee.markets.length) {
+						return _.first(ee.markets).type;
+					}
+					return '';
+				}, this);
+
+				var events = _.reduce(evvvttss, function(memo, e) {
+					_.extend(e, {level: 'event', parent: league});
+
+					var index = e.name.indexOf('-');
+					if (index != -1) {
+						e.name = e.name.substring(index+2);
+					}
+
+					console.log("Comp: Country: "+cntry.name+", League: "+lg.name+", Event: "+ e.name);
+
+					var evt = cache.updateEvent(e);
+					if (!this.defaultEvents[s]) {
+						this.defaultEvents[s] = evt;
+					}
+
+					if (!!evt.get('numMarkets')) {
+						this.All[evt.id] = evt;
+						memo.push(evt);
+					}
+
+					return memo;
+				}, [], this);
+
+				league.Children.reset(events);
+				return league;
 
 			}, this);
 
@@ -223,7 +261,7 @@ var Model = Backbone.Model.extend({
 			this.Sports = {};
 
 		if (!_.has(this.Sports, sport))
-			this.Sports[sport] = new CompetitionsCollection();
+			this.Sports[sport] = new Collection();
 
 		return this.Sports[sport];
 	},
@@ -248,7 +286,7 @@ var Model = Backbone.Model.extend({
 	store: function(data, obj) {
 		// create the new Competition object
 		var comp = new Competition(data);
-		comp.Children = new CompetitionsCollection();
+		comp.Children = new Collection();
 		comp.Children.comparator = undefined;
 		// store the competition in general lookup hash,
 		// and the appropriate sport/competition/league hash

@@ -85,7 +85,8 @@ export default Backbone.Model.extend({
 
 			this.listenToOnce(selection,"change:displayed", this.onSelectionDisplayedChange);
 			this.listenToOnce(selection,"change:state", this.onSelectionStateChange);
-			selection.populate(s);
+
+			selection.set(selection.parse(s));
 		}, this);
 	},
 

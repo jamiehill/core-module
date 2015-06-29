@@ -650,6 +650,7 @@ var Service = ServiceBase.extend({
 			args: [
 				'sport',
 				{includeOutrights: 'false'},
+				{includeEvents: 'true'},
 				{channelId: {attr: 'channelId'}},
 				{locale: {attr: 'locale'}}
 			]

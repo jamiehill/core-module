@@ -6,7 +6,7 @@ export default function(user, pass) {
 		App.session.execute('storeSession', resp.Login);
 		App.Globals.setLocale('en-'+resp.Login.countryCode.toLowerCase(), false);
 	}).fail(function() {
-		App.session.execute('clearSession', resp.Login);
+		App.session.execute('clearSession');
 	})
 }
 

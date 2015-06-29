@@ -176,7 +176,8 @@ export default Backbone.Model.extend({
 			}
 
 			// otherwise update the existing market
-			that.Markets.get(m.id).populate(m);
+			var market = that.Markets.get(m.id);
+			market.set(market.parse(m));
 		});
 		return changed;
 	},
