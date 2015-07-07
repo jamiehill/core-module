@@ -1,8 +1,6 @@
 import dataModel from '../model/SportDataModel';
 import Market from '../model/Market';
 import Selection from '../model/Selection';
-import collection from '../utils/CollectionUtil';
-
 
 var Markets = Backbone.Collection.extend({
 
@@ -147,19 +145,6 @@ var Markets = Backbone.Collection.extend({
 		});
 		return new Markets(filtered);
 	},
-
-
-	/**
-	 * Returns the key market by type if specified,
-	 * otherwise returns the first available market
-	 * @param type
-	 * @returns {*}
-	 */
-	byKeyMarket: function(type) {
-		if (_.isEmpty(type)) return this.at(0);
-		return this.byType(type);
-	},
-
 
 
 	/**

@@ -2,7 +2,7 @@ import Topic from './Topic';
 import Marionette from 'backbone.marionette';
 import {PUBLIC_LOGIN_SUCCESS} from '../../service/SocketService';
 
-export default Marionette.Controller.extend({
+var Controller = Marionette.Controller.extend({
 
 	currentRoute: '',
 	previousSubs: [],
@@ -22,8 +22,7 @@ export default Marionette.Controller.extend({
 		_.bindAll(this, 'add', 'remove', 'send', 'resend', 'clear', 'reset', 'func', 'sendUpdate');
 
 		App.socket.on(PUBLIC_LOGIN_SUCCESS, this.resend);
-		App.vent.on('subscriptions:clearall', this.clear);
-		App.vent.on('router:before:routeChange', this.reset);
+		App.router.on('router:before:routeChange', this.reset);
 
 		this.topics.EventSummary.check(this.topics.EventDetails);
 	},
@@ -38,6 +37,7 @@ export default Marionette.Controller.extend({
 	 * Specific subscription for EventView, er, views.
 	 */
 	subscribeToEventView: function(type, sport, eventIds, marketTypes) {
+		if (_.isEmpty(eventIds)) return;
 		this.func(type)([
 			this.topics.EventSummary.action(type, eventIds),
 			this.topics.MarketTypes.action(type, marketTypes),
@@ -52,6 +52,7 @@ export default Marionette.Controller.extend({
 	 * @param marketTypes
 	 */
 	subscribeToMarketsAndSchedule: function(type, sports, eventIds, marketTypes) {
+		if (_.isEmpty(eventIds) || _.isempty(marketTypes)) return;
 		this.func(type)([
 			this.topics.EventSummary.action(type, eventIds),
 			this.topics.MarketTypes.action(type, marketTypes),
@@ -65,6 +66,7 @@ export default Marionette.Controller.extend({
 	 * @param eventIds
 	 */
 	subscribeToEventsAndSchedule: function(type, sports, eventIds) {
+		if (_.isEmpty(eventIds)) return;
 		this.func(type)([
 			this.topics.EventSummary.action(type, eventIds),
 			this.topics.Schedule.action(type, sport)
@@ -76,6 +78,7 @@ export default Marionette.Controller.extend({
 	 * @param eventIds
 	 */
 	subscribeToEventDetails: function(type, eventIds) {
+		if (_.isEmpty(eventIds)) return;
 		this.func(type)([
 			this.topics.EventDetails.action(type, eventIds)
 		]);
@@ -86,6 +89,7 @@ export default Marionette.Controller.extend({
 	 * @param eventIds
 	 */
 	subscribeToEventSummaryAndSchedule: function(type, sports, eventIds) {
+		if (_.isEmpty(eventIds)) return;
 		this.func(type)([
 			this.topics.EventSummary.action(type, eventIds),
 			this.topics.Schedule.action(type, sports)
@@ -97,6 +101,7 @@ export default Marionette.Controller.extend({
 	 * @param sports
 	 */
 	subscribeToSchedule: function(type, sports) {
+		if (_.isEmpty(sports)) return;
 		this.func(type)([
 			this.topics.Schedule.action(type, sports)
 		]);
@@ -107,6 +112,7 @@ export default Marionette.Controller.extend({
 	 * @param betids
 	 */
 	subscribeToCashout: function(type, betIds) {
+		if (_.isEmpty(betIds)) return;
 		this.func(type)([
 			this.topics.Cashout.action(type, betIds)
 		]);
@@ -184,7 +190,7 @@ export default Marionette.Controller.extend({
 		var data = this.serializeSubs(subs, type);
 		if (data) {
 			console.log('Socket: '+log+': '+data);
-			this.service.subscribe(data);
+			App.socket.send(data);
 		}
 	},
 
@@ -246,3 +252,6 @@ export default Marionette.Controller.extend({
 	}
 
 });
+
+let inst = new Controller();
+export default inst;

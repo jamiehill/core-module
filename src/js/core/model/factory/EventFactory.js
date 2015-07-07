@@ -114,29 +114,20 @@ var Factory = Marionette.Controller.extend({
 	 * @param compId
 	 */
 	fetchCompetition: function(compId, marketType) {
-		//var that = this;
-		//compFactory.fetch(function() {
-        //
-		//	// retrieves the specified competition or default if no id
-		//	var competition = that.compFactory.getCompetition(compId),
-		//		country = that.compFactory.getCountryForCompetition(competition.id);
-        //
-		//	if (!country) {
-		//		that.collection.reset([]);
-		//		return;
-		//	}
-        //
-		//	var sport  = App.Globals.sport.toLowerCase(),
-		//		market = marketType || that.keyMarketsModel.getDefaultMarket(sport, country.get('name'));
-        //
-		//	ctx.get('apiService')
-		//		.getCompetitionEvents(competition.id, market)
-		//		.done(function(resp){
-		//			if (_.has(resp, 'Competition')) {
-		//				that.parseCompetition(resp.Competition.event, App.Globals.sport, competition.id, market, country);
-		//			}
-		//		});
-		//});
+		var that = this;
+		compFactory.fetch(function() {
+			// retrieves the specified competition or default if no id
+			var competition = compFactory.getCompetition(compId);
+			var sport  = App.Globals.sport.toLowerCase(),
+				market = marketType || dataModel.getKeyMarket(sport);
+
+			service.getCompetitionEvents(competition.id, market)
+				.done(function(resp){
+					if (_.has(resp, 'Competition')) {
+						that.parseCompetition(resp.Competition.event, App.Globals.sport, competition.id, market);
+					}
+				});
+		});
 	},
 
 

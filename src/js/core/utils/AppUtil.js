@@ -49,3 +49,14 @@ export var abbr = function(t){
 	}
 	return t;
 };
+
+
+/**
+ * Returns true if the passed in func is an es6 class, not a standard function
+ * @param func
+ * @returns {boolean}
+ */
+export var isClass = function(func) {
+	return typeof func === 'function'
+		&& /^class\s/.test(Function.prototype.toString.call(func));
+}

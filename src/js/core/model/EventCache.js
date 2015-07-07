@@ -1,6 +1,5 @@
 import Event from './Event';
 
-
 var Collection = Backbone.Collection.extend({
 
 	model: Event,

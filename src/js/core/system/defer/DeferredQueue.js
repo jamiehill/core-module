@@ -27,10 +27,12 @@ export default class DeferredQueue extends Deferred {
 			var obj = this.queue.shift();
 			// Deferred Object path
 			if (_.isString(obj)) {
-				System.import(obj).then(function(Obj) {
-					obj = new Obj.default(that.options);
-					obj.init().then(that.next).catch(that.failure);
-				}).catch(that.failure);
+				// TODO use alternate implementation as dynamic imports don't work!
+				// NB - dynamic imports are not supported in SFX builds
+				//System.import(obj).then(function(Obj) {
+				//	obj = new Obj.default(that.options);
+				//	obj.init().then(that.next).catch(that.failure);
+				//}).catch(that.failure);
 			}
 
 			// Deferred Object
@@ -38,13 +40,6 @@ export default class DeferredQueue extends Deferred {
 				obj = new obj(this.options);
 				obj.init().then(that.next).catch(that.failure);
 			}
-
-			// System.import path
-			else {
-				System.import(obj.path)
-					.then(that.next).catch(that.failure);
-			}
-
 			return;
 		}
 		// otherwise finish up

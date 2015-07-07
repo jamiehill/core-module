@@ -7,6 +7,7 @@ import cache from 'core/model/EventCache';
 var Model = Backbone.Model.extend({
 
 	deferred: null,
+	collection: new Collection(),
 	defaultEvents: {},
 	Sports: {},
 	Countries: {},
@@ -49,6 +50,7 @@ var Model = Backbone.Model.extend({
 		// data already loaded so return it
 		var competitions = that.getSport(sport);
 		if (callback) callback(competitions);
+		else this.collection.reset(competitions.models);
 	},
 
 
@@ -64,7 +66,7 @@ var Model = Backbone.Model.extend({
 		service.getSportTree(sport.toUpperCase(), true, true)
 			.done(function(resp){
 				if (_.has(resp, 'Sport') && _.has(resp.Sport, 'competitions')) {
-					that.parseCompetitions(resp.Sport.competitions.category);
+					that.parseCompetitions(resp.Sport.competitions.category, sport);
 				}
 				that.deferred.resolve();
 				that.deferred = null;
@@ -84,12 +86,12 @@ var Model = Backbone.Model.extend({
 		// maintain the sort order from the server
 		sport.comparator = undefined;
 		countries = _.map(data, function(cntry) {
-			_.extend(cntry, {level: 'country'});
+			_.extend(cntry, {level: 'country', code: s});
 			country = this.store(cntry, this.Countries);
 
 			// map out the leagues for this country
 			leagues = _.map(cntry.competition, function(lg) {
-				_.extend(lg, {level: 'league', parent: country});
+				_.extend(lg, {level: 'league', parent: country, code: s});
 
 				var league = this.store(lg, this.Leagues);
 				var evvvttss = _.filter(lg.event, function(eeeee) {
@@ -111,7 +113,7 @@ var Model = Backbone.Model.extend({
 						e.name = e.name.substring(index+2);
 					}
 
-					console.log("Comp: Country: "+cntry.name+", League: "+lg.name+", Event: "+ e.name);
+					//console.log("Comp: Country: "+cntry.name+", League: "+lg.name+", Event: "+ e.name);
 
 					var evt = cache.updateEvent(e);
 					if (!this.defaultEvents[s]) {

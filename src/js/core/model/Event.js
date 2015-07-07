@@ -136,7 +136,7 @@ export default Backbone.Model.extend({
 
 				if (!_.isUndefined(market)) {
 					that.listenToOnce(market,"change", that.onMarketPropertyChange);
-					market.populate(marketObj,false);
+					market.set(market.parse(marketObj), false);
 				}
 			});
 		}
@@ -146,11 +146,16 @@ export default Backbone.Model.extend({
 	 * @param market
 	 */
 	onMarketPropertyChange: function(market) {
-		App.vent.trigger('market:propertyChange', {
+		App.bus.trigger('market:propertyChange', {
 			eventId: market.attributes.eventId,
 			changed: market.changed,
 			id: market.id
 		});
+	},
+
+
+	slugify: function() {
+		return _.slugify(this.get('name'));
 	},
 
 

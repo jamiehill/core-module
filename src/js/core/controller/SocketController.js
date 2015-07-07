@@ -14,9 +14,15 @@ var Controller = Marionette.Controller.extend({
 	 */
 	initialize: function() {
 		_.bindAll(this, 'onLoggedIn', 'onLoggedOut', 'onClosed');
+		var that = this;
+
 		App.session.on(LOGGED_IN, this.onLoggedIn);
 		App.session.on(LOGGED_OUT, this.onLoggedOut);
 		App.socket.on(SOCKET_CLOSED, this.onClosed);
+		// expose the socket send method on the socket channel
+		App.socket.send = function(data) {
+			that.socket.send(data);
+		};
 	},
 
 

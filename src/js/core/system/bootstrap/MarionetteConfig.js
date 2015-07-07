@@ -1,4 +1,5 @@
 import Deferred from '../defer/Deferred';
+import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 
 
@@ -13,6 +14,7 @@ export default class MarionetteConfig extends Deferred {
 	 */
 	initialize() {
 		this.addApplicationStop();
+		this.addCollectionIds();
 		this.addRouterMods();
 		this.addHrefInterceptor();
 		this.success();
@@ -55,6 +57,19 @@ export default class MarionetteConfig extends Deferred {
 			this.triggerMethod('before:top', options);
 			this.triggerMethod('stop', options);
 		};
+	}
+
+
+	/**
+	 * Adds a uid to all collections
+	 */
+	addCollectionIds() {
+		_.extend(Backbone.Collection.prototype, {
+			uuid: _.uniqueId()
+		});
+		_.extend(Backbone.Model.prototype, {
+			uuid: _.uniqueId()
+		});
 	}
 
 

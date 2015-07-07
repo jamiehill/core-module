@@ -93,7 +93,7 @@ export default Backbone.Model.extend({
 
 	updateSelectionsWithLine: function(line) {
 		var that = this;
-		if (_.has(this.Selections,'models')) {
+		if (_.has(this.Selections, 'models')) {
 			_.each(this.Selections.models, function(s) {
 				that.listenToOnce(s,"change:line", that.onSelectionLineChange);
 				s.set('line',line);
@@ -110,28 +110,24 @@ export default Backbone.Model.extend({
 	},
 
 	onSelectionStateChange: function(event) {
-		var vent = ctx.get("vent");
-		vent.trigger('selection:stateChange', event);
+		App.bus.trigger('selection:stateChange', event);
 	},
 
 	onSelectionDisplayedChange: function(event) {
-		var vent = ctx.get("vent");
-		vent.trigger('selection:displayedChange', event);
+		App.bus.trigger('selection:displayedChange', event);
 	},
 
 	/**
 	 * @param event
 	 */
 	onSelectionPriceChange: function(event) {
-		var vent = ctx.get("vent");
 		var oddsObj = oddsFactory.getOddsByIndex(event.attributes.rootIdx);
 		if (oddsObj) {
 			event.set('decimalOdds',oddsObj.decimal);
 			event.set('fractionalOdds',oddsObj.fractional);
 			event.set('americanOdds',oddsObj.american);
 		}
-
-		vent.trigger('selection:priceChange', event);
+		App.bus.trigger('selection:priceChange', event);
 	},
 
 	/**
@@ -142,8 +138,7 @@ export default Backbone.Model.extend({
 		var lineHasChanged = s._previousAttributes.line != line;
 
 		if (!_.isNull(line) && lineHasChanged) {
-			var vent = ctx.get("vent");
-			vent.trigger('selection:lineChange', s);
+			App.bus.trigger('selection:lineChange', s);
 		}
 	}
 

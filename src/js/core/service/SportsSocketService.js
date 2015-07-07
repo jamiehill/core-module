@@ -32,36 +32,36 @@ export default SocketService.extend({
 		switch(true) {
 			case data.PushMsg:
 				if (data.PushMsg.eventTradingState) {
-					this.trigger(EVENT_TRADING_STATE, data.PushMsg.eventTradingState);
+					App.socket.trigger(EVENT_TRADING_STATE, data.PushMsg.eventTradingState);
 				}
 				if (data.PushMsg.incidents) {
-					this.trigger(INCIDENTS, data.PushMsg.incidents);
+					App.socket.trigger(INCIDENTS, data.PushMsg.incidents);
 				}
 				if (data.PushMsg.event) {
-					this.trigger(EVENT, data.PushMsg.event);
+					App.socket.trigger(EVENT, data.PushMsg.event);
 				}
 				break;
 			case data.EventDataSync:
-				this.trigger(DATA_SYNC, data.EventDataSync);
+				App.socket.trigger(DATA_SYNC, data.EventDataSync);
 				break;
 			case data.SubscribeResponse:
-				this.trigger(SUBSCRIBE_RESPONSE, data.SubscribeResponse);
+				App.socket.trigger(SUBSCRIBE_RESPONSE, data.SubscribeResponse);
 				break;
 			case data.BasicResponse:
 				break;
 			case data.ScheduleAmendment:
-				this.trigger(SCHEDULE_AMENDMENT, data.ScheduleAmendment);
+				App.socket.trigger(SCHEDULE_AMENDMENT, data.ScheduleAmendment);
 				break;
 			case data.AccountBalanceUpdate:
-				this.trigger(ACCOUNT_BALANCE_UPDATE, data.AccountBalanceUpdate);
+				App.socket.trigger(ACCOUNT_BALANCE_UPDATE, data.AccountBalanceUpdate);
 				break;
 			case data.BetUpdate:
-				this.trigger(BET_UPDATE, data.BetUpdate);
+				App.socket.trigger(BET_UPDATE, data.BetUpdate);
 				break;
 			case data.CalculateCashoutResponse:
 				var cashoutResult = data.CalculateCashoutResponse.cashoutResult;
 				if (_.size(cashoutResult) > 0) {
-					this.trigger(CALCULATE_CASHOUT, cashoutResult);
+					App.socket.trigger(CALCULATE_CASHOUT, cashoutResult);
 				}
 				break;
 		}

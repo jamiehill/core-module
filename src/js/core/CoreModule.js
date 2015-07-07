@@ -1,5 +1,10 @@
 import DeferredQueue from './system/defer/DeferredQueue';
-import {load} from './utils/SystemUtil';
+import AppConfig from 'app/AppConfig';
+import DomainResolver from 'core/system/bootstrap/DomainResolver';
+import MarionetteConfig from 'core/system/bootstrap/MarionetteConfig';
+import GetSportData from 'core/system/bootstrap/GetSportData';
+import GetRootLadder from 'core/system/bootstrap/GetRootLadder';
+import EventModel from 'core/model/domain/EventModel';
 
 export default Marionette.Module.extend({
 
@@ -21,6 +26,13 @@ export default Marionette.Module.extend({
 	 */
 	boot(modules) {
 		console.log('Bootstrap - start');
+		modules = [
+			AppConfig,
+			DomainResolver,
+			MarionetteConfig,
+			GetRootLadder,
+			GetSportData
+		];
 
 		var queue, that = this;
 		return new Promise(function(resolve, reject) {
@@ -41,7 +53,8 @@ export default Marionette.Module.extend({
 		Promise.all([
 			// load the controllers
 			System.import('core/controller/SocketController'),
-			System.import('core/controller/ApiController')
+			System.import('core/controller/ApiController'),
+			System.import('core/controller/CommandController')
 
 		]).then(function(mods) {
 

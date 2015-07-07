@@ -1,4 +1,5 @@
 import Backbone from 'backbone';
+import oddsFactory from '../model/factory/OddsFactory';
 
 export default Backbone.Model.extend({
 
@@ -79,6 +80,45 @@ export default Backbone.Model.extend({
 				data[obj.key] = obj.val;
 			});
 			delete data.attributes;
+		}
+		this.updatePrices(data);
+		return data;
+	},
+
+	/* ----TODO - REMOVE --- */
+	/* ----- TEMPORARY ----- */
+
+	initialize: function() {
+		_.bindAll(this, 'ping');
+		//this.ping();
+	},
+
+
+	ping: function() {
+		var that = this;
+		this.timerId = _.delay(function() {
+			var rootIdx = Math.floor(Math.random() * (100 - 1) + 1),
+				data = that.updatePrices({rootIdx: rootIdx});
+			that.set(data);
+			App.bus.trigger('selection:change', that.id);
+			that.ping();
+		}, 1000);
+	},
+
+	/* ----- TEMPORARY ----- */
+
+
+	/**
+	 * @param data
+	 * @returns {*}
+	 */
+	updatePrices: function(data) {
+		if (!_.has(data, 'rootIdx')) return data;
+		var oddsObj = oddsFactory.getOddsByIndex(data.rootIdx);
+		if (oddsObj) {
+			data.decimalOdds = oddsObj.decimal;
+			data.fractionalOdds = oddsObj.fractional;
+			data.americanOdds = oddsObj.american;
 		}
 		return data;
 	},

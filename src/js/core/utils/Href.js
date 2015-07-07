@@ -143,7 +143,7 @@ export var stripQuery = function(url) {
  * @param queryString
  */
 export var getQueryParams = function() {
-	var query = this.getQuery();
+	var query = getQuery();
 	if (!query) return false;
 
 	return _
@@ -155,3 +155,13 @@ export var getQueryParams = function() {
 		.object()
 		.value();
 };
+
+
+/**
+ * Returns a query parameter by name
+ * @param name
+ */
+export var getParam = function(name) {
+	var params = getQueryParams();
+	return params[name];
+}
