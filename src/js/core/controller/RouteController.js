@@ -51,9 +51,18 @@ export default Marionette.Controller.extend({
 			if (_.isFunction(obj.ctrl[callback])){
 				obj.ctrl[callback].apply(obj.ctrl, _.initial(args));
 			}
+
+			else if (_.contains(this.staticRoutes, fragment)) {
+				if (_.isFunction(obj.ctrl.onStaticRoute)) {
+					obj.ctrl.onStaticRoute.apply(obj.ctrl, [callback]);
+				}
+			}
+
 			else if(_.isFunction(obj.ctrl.onNoMatch)) {
 				obj.ctrl.onNoMatch.apply(obj.ctrl, [callback]);
 			}
+
+
 
 			// invoke general route handler on controller
 			if (_.isFunction(obj.ctrl.onRouteChange)){
