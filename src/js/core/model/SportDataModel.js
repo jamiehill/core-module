@@ -80,6 +80,7 @@ var Model = Backbone.Model.extend({
 	 */
 	getKeyMarkets: function(sport) {
 		var s = this.getSport(sport);
+		return ['MRES'];
 		return s.keyMarkets;
 		return _.reduce(s.keyMarkets, function(memo, type) {
 			memo.push(this.getMarketByType(type, sport));

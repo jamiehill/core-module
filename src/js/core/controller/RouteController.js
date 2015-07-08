@@ -8,6 +8,7 @@ export default Marionette.Controller.extend({
 
 	currentRoute: '',
 	appRoutes: {},
+	staticRoutes: [],
 	controllers: [],
 	history: [],
 
@@ -35,8 +36,12 @@ export default Marionette.Controller.extend({
 			callback = args.pop();
 
 		this.currentRoute = fragment;
-		this.history.push({fragment: fragment, callback: callback});
+		// don't add static routes to the history
+		if (!_.contains(this.staticRoutes, fragment)) {
+			this.history.push({fragment: fragment, callback: callback});
+		}
 
+		// trigger 'before' route
 		App.router.trigger(BEFORE_ROUTE_CHANGE, fragment);
 
 		// iterate through each controller, ordered by priority,

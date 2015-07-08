@@ -7,6 +7,7 @@ import login from 'core/command/Login';
 // model constants
 export const LOGGED_IN = 'session:loggedin';
 export const LOGGED_OUT = 'session:loggedout';
+export const SESSION_CHANGE = 'session:changed';
 export const NOT_LOGGED_IN_ERROR = 'session:errorNotLoggedIn';
 
 var Model = Backbone.Model.extend({
@@ -35,7 +36,7 @@ var Model = Backbone.Model.extend({
 	 */
 	initialize: function() {
 		var that = this;
-		_.bindAll(this, 'isLoggedIn');
+		_.bindAll(this, 'isLoggedIn', 'toJSON');
 
 		// adds method execution in this scope
 		App.session.execute = execute(this);
@@ -43,6 +44,7 @@ var Model = Backbone.Model.extend({
 		// configure request/responses for decoupled interaction
 		App.session.reply('token', this.get('sessionToken'));
 		App.session.reply('loggedIn', this.isLoggedIn);
+		App.session.reply('session', this.toJSON);
 		App.session.reply('session:details', function(props) {
 			return modelProps(that, props);
 		});
@@ -81,7 +83,9 @@ var Model = Backbone.Model.extend({
 	 */
 	toJSON: function() {
 		var data = _.clone(this.attributes);
-		delete data.accountBalance.accountId;
+		if (data.accountBalance) {
+			delete data.accountBalance.accountId;
+		}
 		return data;
 	},
 
@@ -104,6 +108,7 @@ var Model = Backbone.Model.extend({
 	storeSession: function(lgn, silent){
 		this.set(lgn, {silent: !!silent});
 		App.session.trigger(LOGGED_IN, lgn);
+		App.session.trigger(SESSION_CHANGE, lgn);
 	},
 
 
@@ -121,6 +126,7 @@ var Model = Backbone.Model.extend({
 	clearSession: function(){
 		this.Store.clear();
 		App.session.trigger(LOGGED_OUT);
+		App.session.trigger(SESSION_CHANGE);
 	},
 
 
@@ -129,18 +135,22 @@ var Model = Backbone.Model.extend({
 	 * to automatically log the user back in
 	 */
 	recoverSession: function(){
-		var localSession = this.Store.get();
+		//var localSession = this.Store.get();
+		var localSession = null;
+		this.Store.clear(); // clear store so people don't think we're currently logged in
 		if (localSession == null) {
 			this.clearSession();
 		}
 
 		else {
-
 			if (_.isString(localSession)) {
 				localSession = JSON.parse(localSession);
 			}
-			this.storeSession(localSession, true);
-			this.validateSession();
+			var that = this;
+			this.validateSession(localSession).then(function() {
+				console.log('Session :: Recovered');
+				that.storeSession(localSession);
+			});
 		}
 	},
 
@@ -149,14 +159,22 @@ var Model = Backbone.Model.extend({
 	 * Validates the current session token
 	 * @returns {Promise}
 	 */
-	validateSession: function() {
+	validateSession: function(session) {
 		var that = this;
-		service.getBalance().fail(function(){
-			console.log('InvalidSession :: Retrying AutoLogin...');
-			var session = JSON.stringify(that.Store.get());
-			that.Store.clear();
-			login(session.username, session.password);
-		})
+		return new Promise(function(resolve, reject) {
+			service.validateSession(session.sessionToken)
+				.done(function() {
+					resolve();
+				})
+				.fail(function(){
+					//console.log('InvalidSession :: Retrying AutoLogin...');
+					//login(session.username, session.password)
+					//	.then(resolve).catch(reject);
+
+					console.log('InvalidSession :: NotLoggedIn');
+					reject();
+				})
+		});
 	},
 
 

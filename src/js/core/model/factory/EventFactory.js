@@ -121,6 +121,8 @@ var Factory = Marionette.Controller.extend({
 			var sport  = App.Globals.sport.toLowerCase(),
 				market = marketType || dataModel.getKeyMarket(sport);
 
+			market = 'MRES';
+
 			service.getCompetitionEvents(competition.id, market)
 				.done(function(resp){
 					if (_.has(resp, 'Competition')) {

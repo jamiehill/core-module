@@ -91,6 +91,14 @@ var Service = ServiceBase.extend({
 			]
 		},
 
+		validateSession: {
+			method: 'post',
+			secure: true,
+			args: [
+				'sessionToken'
+			]
+		},
+
 		updateActiveWallet: {
 			method: 'post',
 			secure: true,
