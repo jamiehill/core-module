@@ -30,8 +30,8 @@ export default Marionette.Module.extend({
 			AppConfig,
 			DomainResolver,
 			MarionetteConfig,
-			GetRootLadder,
-			GetSportData
+			//GetRootLadder,
+			//GetSportData
 		];
 
 		var queue, that = this;
